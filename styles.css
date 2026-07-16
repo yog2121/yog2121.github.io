@@ -115,6 +115,53 @@ h1 {
   margin: 0 auto 2.5rem auto;
 }
 
+/* Tab Navigation Selector */
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(16, 22, 42, 0.4);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem;
+  border-radius: 100px;
+  width: fit-content;
+  margin: 0 auto 2.5rem auto;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-glass);
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.75rem 1.75rem;
+  border-radius: 100px;
+  color: var(--text-secondary);
+  font-family: var(--font-family-title);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all var(--transition-speed) ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tab-btn.active.sih {
+  background: var(--accent-soft-grad);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-glow-soft);
+}
+
+.tab-btn.active.isro {
+  background: var(--accent-hard-grad);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-glow-hard);
+}
+
 /* Stats Dashboard */
 .stats-grid {
   display: grid;
@@ -871,6 +918,24 @@ h1 {
   .subtitle {
     font-size: 0.95rem;
     margin-bottom: 1.5rem;
+  }
+
+  .tabs-container {
+    width: 100%;
+    border-radius: 12px;
+    padding: 0.25rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tab-btn {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    justify-content: center;
+    gap: 0.35rem;
   }
   
   .stats-grid {

@@ -1,7 +1,8 @@
 // Application State
 let allStatements = [];
 let filteredStatements = [];
-let bookmarks = JSON.parse(localStorage.getItem('sih2025_bookmarks')) || [];
+let currentTab = 'sih'; // 'sih' or 'isro'
+let bookmarks = [];
 
 // Filter States
 let searchQuery = '';
@@ -31,6 +32,7 @@ const statBookmarksCount = document.getElementById('statBookmarksCount');
 
 // Initialize Website
 document.addEventListener('DOMContentLoaded', () => {
+  updateBookmarksState();
   loadData();
   setupEventListeners();
   updateStatsCounters();
@@ -39,10 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load Preloaded Data from data.js
 function loadData() {
   try {
-    if (typeof SIH_DATA === 'undefined') {
-      throw new Error("SIH_DATA is not defined. Make sure data.js is loaded properly.");
+    const dataRef = currentTab === 'sih' ? (typeof SIH_DATA !== 'undefined' ? SIH_DATA : undefined) : (typeof ISRO_DATA !== 'undefined' ? ISRO_DATA : undefined);
+    if (dataRef === undefined) {
+      throw new Error(`Data for tab '${currentTab}' is not defined. Make sure data.js is loaded properly.`);
     }
-    allStatements = cleanData(SIH_DATA);
+    allStatements = cleanData(dataRef);
     initializeDropdowns();
     applyFilters();
     
@@ -57,6 +60,61 @@ function loadData() {
     showErrorState();
   }
 }
+
+// Update Bookmarks Local Reference based on active tab
+function updateBookmarksState() {
+  const key = currentTab === 'sih' ? 'sih2025_bookmarks' : 'isro2026_bookmarks';
+  bookmarks = JSON.parse(localStorage.getItem(key)) || [];
+}
+
+// Tab Switching Handler
+window.switchTab = function(tab) {
+  if (currentTab === tab) return;
+  
+  currentTab = tab;
+  expandedId = null; // collapse any active card
+  
+  const tabSIH = document.getElementById('tabSIH');
+  const tabISRO = document.getElementById('tabISRO');
+  const logoText = document.querySelector('.logo-text');
+  
+  if (currentTab === 'sih') {
+    tabSIH.classList.add('active', 'sih');
+    tabISRO.classList.remove('active', 'isro');
+    if (logoText) logoText.textContent = "SIH 2025 Portal";
+    
+    document.querySelector('header h1').textContent = "Smart India Hackathon 2025";
+    document.querySelector('header .subtitle').textContent = "Search, filter, and shortlist the official problem statements with ease. Tap on any statement to view detailed descriptions, departments, and reference material.";
+  } else {
+    tabISRO.classList.add('active', 'isro');
+    tabSIH.classList.remove('active', 'sih');
+    if (logoText) logoText.textContent = "ISRO BAH 2026 Portal";
+    
+    document.querySelector('header h1').textContent = "ISRO Antariksh Hackathon 2026";
+    document.querySelector('header .subtitle').textContent = "Search, filter, and analyze real-world space technology and remote sensing challenges from the Indian Space Research Organisation.";
+  }
+  
+  // Update local bookmarks key
+  updateBookmarksState();
+  
+  // Clear and reset form filters quietly
+  searchQuery = '';
+  categoryFilter = '';
+  themeFilter = '';
+  orgFilter = '';
+  bookmarksOnly = false;
+  
+  searchInput.value = '';
+  themeSelect.value = '';
+  orgSelect.value = '';
+  
+  document.getElementById('btnSoftware').classList.remove('active', 'software');
+  document.getElementById('btnHardware').classList.remove('active', 'hardware');
+  document.getElementById('btnStarred').classList.remove('active', 'starred');
+  
+  // Reload the dataset (which automatically triggers initialisedropdowns and applyfilters)
+  loadData();
+};
 
 // Clean and Validate Data
 function cleanData(data) {
@@ -77,6 +135,10 @@ function cleanData(data) {
 
 // Populate Filter Dropdowns dynamically
 function initializeDropdowns() {
+  // Clear previous options except the default 'All' select option
+  themeSelect.innerHTML = '<option value="">All Themes</option>';
+  orgSelect.innerHTML = '<option value="">All Organizations</option>';
+  
   const themes = new Set();
   const orgs = new Set();
   
@@ -197,13 +259,43 @@ function renderList() {
     const isExpanded = expandedId === item.Problem_Statement_ID;
     const catClass = item.Category.toLowerCase() === 'software' ? 'software-card' : 'hardware-card';
     
-    // Prepare external link layouts
+    // Prepare external link and image layout
     let linksHtml = '';
+    let imagesHtml = '';
+    
     if (item.Dataset_Links) {
-      linksHtml += `<a href="${item.Dataset_Links}" target="_blank" rel="noopener" class="ps-link-btn dataset-btn">
-                     <i class="fa-solid fa-database"></i> Dataset Reference
-                   </a>`;
+      const urls = item.Dataset_Links.split(',').map(url => url.trim()).filter(url => url);
+      const isImage = (url) => /\.(webp|png|jpg|jpeg|gif|svg)$/i.test(url.split('?')[0]);
+      
+      const imageUrls = urls.filter(isImage);
+      const standardUrls = urls.filter(url => !isImage(url));
+      
+      if (imageUrls.length > 0) {
+        imagesHtml = `
+          <div class="ps-detail-section">
+            <div class="ps-section-title">
+              <i class="fa-solid fa-image"></i> Problem Diagrams & Workflows
+            </div>
+            <div class="ps-image-gallery" style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 0.5rem;">
+              ${imageUrls.map(url => `
+                <div class="ps-image-wrapper" style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.25); box-shadow: var(--shadow-glow-soft); max-width: 100%;">
+                  <img src="${url}" alt="Problem Statement Diagram" style="width: 100%; height: auto; display: block; cursor: zoom-in;" loading="lazy" onclick="window.open('${url}', '_blank')">
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      if (standardUrls.length > 0) {
+        linksHtml += standardUrls.map(url => `
+          <a href="${url}" target="_blank" rel="noopener" class="ps-link-btn dataset-btn">
+            <i class="fa-solid fa-database"></i> Reference Dataset
+          </a>
+        `).join('');
+      }
     }
+    
     if (item.Youtube_Links) {
       linksHtml += `<a href="${item.Youtube_Links}" target="_blank" rel="noopener" class="ps-link-btn youtube-btn">
                      <i class="fa-brands fa-youtube"></i> Explainer Video
@@ -249,6 +341,9 @@ function renderList() {
                 ${formatDescription(item.Description)}
               </div>
             </div>
+            
+            <!-- Reference Images Gallery (if any) -->
+            ${imagesHtml}
             
             <!-- Metadata Grid -->
             <div class="ps-meta-details-grid">
@@ -503,7 +598,8 @@ window.toggleBookmark = function(id) {
     bookmarks.splice(index, 1);
   }
   
-  localStorage.setItem('sih2025_bookmarks', JSON.stringify(bookmarks));
+  const key = currentTab === 'sih' ? 'sih2025_bookmarks' : 'isro2026_bookmarks';
+  localStorage.setItem(key, JSON.stringify(bookmarks));
   
   // Re-render only modified card components & update badges
   const btn = document.querySelector(`#card-${id} .bookmark-btn`);
