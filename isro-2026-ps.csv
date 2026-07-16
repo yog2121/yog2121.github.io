@@ -304,7 +304,7 @@ Evaluation Criteria
 • Accuracy of the parameters estimated
 • Methods/Approach used
 • Visualization and clarity",Indian Space Research Organisation (ISRO),BAH-2026-07,AI-enabled Detection of Exoplanets from Noisy Astronomical Light Curves,Space AI & Machine Learning,
-Hardware,https://h2svision.github.io/publicAssets2/bah2026/challenge-8-flow-diagram.webp,"Department of Space, ISRO","Description
+Software,https://h2svision.github.io/publicAssets2/bah2026/challenge-8-flow-diagram.webp,"Department of Space, ISRO","Description
 The discovery and characterization of water-ice in the lunar South Polar Region is a high-priority scientific and exploration objective, particularly for enabling sustained human presence on the Moon. Observations from Chandrayaan-2 have opened new avenues to probe surface/subsurface using high-resolution optical and radar datasets. The ‘doubly shadowed craters’ in the lunar permanently shadowed regions (PSRs) provide access to some of the coldest environments on the Moon that are ideal candidates for long-term volatile preservation. However, identifying subsurface ice unambiguously and translating these detections into actionable exploration strategies (landing and rover traversal) remains a key challenge.
 
 Objective
