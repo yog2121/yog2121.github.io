@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SIH 2025 - Problem Statements Explorer</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Explore and search through the Smart India Hackathon (SIH) 2025 Problem Statements. Dynamic filtering by Category, Theme, and Organization, bookmarked favorites, and direct sharing features.">
+  <meta name="keywords" content="Smart India Hackathon, SIH 2025, Problem Statements, Ministry of India, Software, Hardware, Hackathon, Search, Filter">
+  <meta name="author" content="SIH Team">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="./styles.css">
+  
+  <!-- Pre-loaded Dataset -->
+  <script src="./data.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header Section -->
+    <header>
+      <div class="logo-container">
+        <span class="logo-dot"></span>
+        <span class="logo-text">SIH 2025 Portal</span>
+      </div>
+      <h1>Smart India Hackathon 2025</h1>
+      <p class="subtitle">Search, filter, and shortlist the official problem statements with ease. Tap on any statement to view detailed descriptions, departments, and reference material.</p>
+    </header>
+
+    <!-- Quick Stats Dashboard -->
+    <section class="stats-grid" id="statsGrid">
+      <div class="stat-card total" onclick="clearFilters()" style="cursor: pointer;">
+        <span class="stat-val" id="statTotalCount">0</span>
+        <span class="stat-lbl">Total Problems</span>
+      </div>
+      <div class="stat-card software" onclick="toggleCategoryFilter('Software')" style="cursor: pointer;">
+        <span class="stat-val" id="statSoftwareCount">0</span>
+        <span class="stat-lbl">Software</span>
+      </div>
+      <div class="stat-card hardware" onclick="toggleCategoryFilter('Hardware')" style="cursor: pointer;">
+        <span class="stat-val" id="statHardwareCount">0</span>
+        <span class="stat-lbl">Hardware</span>
+      </div>
+      <div class="stat-card starred" onclick="toggleBookmarksOnly()" style="cursor: pointer;">
+        <span class="stat-val" id="statBookmarksCount">0</span>
+        <span class="stat-lbl">Bookmarks</span>
+      </div>
+    </section>
+
+    <!-- Control Hub (Search, Filter, Sort) -->
+    <section class="control-hub">
+      <!-- Search Input -->
+      <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by ID, title, organization, theme, or description..." autocomplete="off">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      </div>
+      
+      <!-- Filters Layout -->
+      <div class="filters-grid">
+        <!-- Theme Select -->
+        <div class="filter-group">
+          <label class="filter-label" for="themeSelect">
+            <i class="fa-solid fa-tags"></i> Theme
+          </label>
+          <div class="select-wrapper">
+            <select id="themeSelect" class="filter-select">
+              <option value="">All Themes</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Organization Select -->
+        <div class="filter-group">
+          <label class="filter-label" for="orgSelect">
+            <i class="fa-solid fa-building"></i> Organization
+          </label>
+          <div class="select-wrapper">
+            <select id="orgSelect" class="filter-select">
+              <option value="">All Organizations</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Category Select Toggles -->
+        <div class="filter-group">
+          <label class="filter-label">
+            <i class="fa-solid fa-filter"></i> Category & Bookmarks
+          </label>
+          <div class="btn-toggle-group">
+            <button class="btn-toggle" id="btnSoftware" onclick="toggleCategoryFilter('Software')">
+              <i class="fa-solid fa-code"></i> SW
+            </button>
+            <button class="btn-toggle" id="btnHardware" onclick="toggleCategoryFilter('Hardware')">
+              <i class="fa-solid fa-microchip"></i> HW
+            </button>
+            <button class="btn-toggle" id="btnStarred" onclick="toggleBookmarksOnly()">
+              <i class="fa-solid fa-star"></i> Bookmarks
+            </button>
+          </div>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="filter-group">
+          <label class="filter-label" for="sortSelect">
+            <i class="fa-solid fa-arrow-down-a-z"></i> Sort By
+          </label>
+          <div class="select-wrapper">
+            <select id="sortSelect" class="filter-select">
+              <option value="id-asc">Statement ID (Ascending)</option>
+              <option value="id-desc">Statement ID (Descending)</option>
+              <option value="title-asc">Title (A - Z)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Filters Bar -->
+      <div class="active-filters-bar" id="activeFiltersBar" style="display: none;">
+        <!-- Filled dynamically -->
+      </div>
+    </section>
+
+    <!-- Results Header -->
+    <div class="list-header">
+      <div class="results-count" id="resultsCount">
+        Showing <span>0</span> of <span>0</span> statements
+      </div>
+    </div>
+
+    <!-- Cards List Container -->
+    <main>
+      <!-- Loading Placeholder -->
+      <div class="loader-container" id="loader">
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <i class="fa-solid fa-magnifying-glass-minus empty-state-icon"></i>
+        <h3>No results found</h3>
+        <p>We couldn't find any problem statements matching your search criteria. Try modifying your filters or keywords.</p>
+        <button class="btn-toggle" onclick="clearFilters()" style="margin: 0 auto; display: flex; width: max-content;">
+          Reset Filters
+        </button>
+      </div>
+
+      <!-- Main list rendered by app.js -->
+      <div class="ps-list" id="psList" style="display: none;"></div>
+    </main>
+
+  </div>
+
+  <!-- Toast Toast Container -->
+  <div class="toast" id="copyToast">
+    <i class="fa-solid fa-circle-check"></i> Direct link copied to clipboard!
+  </div>
+
+  <!-- Custom JS Logic -->
+  <script src="./app.js"></script>
+</body>
+</html>
