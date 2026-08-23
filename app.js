@@ -63,7 +63,7 @@ function loadData() {
 
 // Update Bookmarks Local Reference based on active tab
 function updateBookmarksState() {
-  const key = currentTab === 'sih' ? 'sih2025_bookmarks' : 'isro2026_bookmarks';
+  const key = currentTab === 'sih' ? 'sih2026_bookmarks' : 'isro2026_bookmarks';
   bookmarks = JSON.parse(localStorage.getItem(key)) || [];
 }
 
@@ -81,9 +81,9 @@ window.switchTab = function(tab) {
   if (currentTab === 'sih') {
     tabSIH.classList.add('active', 'sih');
     tabISRO.classList.remove('active', 'isro');
-    if (logoText) logoText.textContent = "SIH 2025 Portal";
+    if (logoText) logoText.textContent = "SIH 2026 Portal";
     
-    document.querySelector('header h1').textContent = "Smart India Hackathon 2025";
+    document.querySelector('header h1').textContent = "Smart India Hackathon 2026";
     document.querySelector('header .subtitle').textContent = "Search, filter, and shortlist the official problem statements with ease. Tap on any statement to view detailed descriptions, departments, and reference material.";
   } else {
     tabISRO.classList.add('active', 'isro');
@@ -119,17 +119,19 @@ window.switchTab = function(tab) {
 // Clean and Validate Data
 function cleanData(data) {
   return data
-    .filter(row => row.Problem_Statement_ID && row.Problem_Statement_Title)
+    .filter(row => (row.Problem_Statement_ID || row.ps_number) && (row.Problem_Statement_Title || row.title))
     .map(row => ({
-      Problem_Statement_ID: row.Problem_Statement_ID.trim(),
-      Problem_Statement_Title: row.Problem_Statement_Title.trim(),
-      Category: row.Category ? row.Category.trim() : 'Software',
-      Theme: row.Theme ? row.Theme.trim() : 'General',
-      Organization: row.Organization ? row.Organization.trim() : 'N/A',
-      Department: row.Department ? row.Department.trim() : 'N/A',
-      Description: row.Description ? row.Description.trim() : '',
-      Dataset_Links: row.Dataset_Links ? row.Dataset_Links.trim() : '',
-      Youtube_Links: row.Youtube_Links ? row.Youtube_Links.trim() : ''
+      Problem_Statement_ID: String(row.Problem_Statement_ID || row.ps_number || '').trim(),
+      Problem_Statement_Title: String(row.Problem_Statement_Title || row.title || '').trim(),
+      Category: String(row.Category || row.category || 'Software').trim(),
+      Theme: String(row.Theme || row.theme || 'General').trim(),
+      Organization: String(row.Organization || row.organization || 'N/A').trim(),
+      Department: String(row.Department || row.department || 'N/A').trim(),
+      Description: String(row.Description || row.description || '').trim(),
+      Dataset_Links: String(row.Dataset_Links || row.dataset_link || '').trim(),
+      Youtube_Links: String(row.Youtube_Links || row.youtube_link || '').trim(),
+      Submitted_Ideas: String(row.Submitted_Ideas || row.submitted_ideas_count || '').trim(),
+      Deadline: String(row.Deadline || row.deadline || '').trim()
     }));
 }
 
@@ -231,10 +233,11 @@ function applyFilters() {
 
 // Sort filtered data
 function sortData() {
+  const getNumericId = (id) => parseInt(String(id).replace(/\D/g, ''), 10) || 0;
   if (sortBy === 'id-asc') {
-    filteredStatements.sort((a, b) => parseInt(a.Problem_Statement_ID) - parseInt(b.Problem_Statement_ID));
+    filteredStatements.sort((a, b) => getNumericId(a.Problem_Statement_ID) - getNumericId(b.Problem_Statement_ID));
   } else if (sortBy === 'id-desc') {
-    filteredStatements.sort((a, b) => parseInt(b.Problem_Statement_ID) - parseInt(a.Problem_Statement_ID));
+    filteredStatements.sort((a, b) => getNumericId(b.Problem_Statement_ID) - getNumericId(a.Problem_Statement_ID));
   } else if (sortBy === 'title-asc') {
     filteredStatements.sort((a, b) => a.Problem_Statement_Title.localeCompare(b.Problem_Statement_Title));
   }
@@ -355,6 +358,18 @@ function renderList() {
                 <span class="ps-meta-item-label">Organization</span>
                 <span class="ps-meta-item-value">${item.Organization}</span>
               </div>
+              ${item.Submitted_Ideas ? `
+                <div class="ps-meta-item">
+                  <span class="ps-meta-item-label">Submitted Ideas</span>
+                  <span class="ps-meta-item-value">${item.Submitted_Ideas}</span>
+                </div>
+              ` : ''}
+              ${item.Deadline ? `
+                <div class="ps-meta-item">
+                  <span class="ps-meta-item-label">Submission Deadline</span>
+                  <span class="ps-meta-item-value">${item.Deadline}</span>
+                </div>
+              ` : ''}
             </div>
 
             <!-- Links Row -->
@@ -598,7 +613,7 @@ window.toggleBookmark = function(id) {
     bookmarks.splice(index, 1);
   }
   
-  const key = currentTab === 'sih' ? 'sih2025_bookmarks' : 'isro2026_bookmarks';
+  const key = currentTab === 'sih' ? 'sih2026_bookmarks' : 'isro2026_bookmarks';
   localStorage.setItem(key, JSON.stringify(bookmarks));
   
   // Re-render only modified card components & update badges
