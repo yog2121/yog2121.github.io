@@ -234,12 +234,22 @@ function applyFilters() {
 // Sort filtered data
 function sortData() {
   const getNumericId = (id) => parseInt(String(id).replace(/\D/g, ''), 10) || 0;
+  const parseDeadline = (dateStr) => {
+    if (!dateStr || dateStr === 'N/A' || dateStr === 'TBD') return 0;
+    const timestamp = Date.parse(dateStr);
+    return isNaN(timestamp) ? 0 : timestamp;
+  };
+
   if (sortBy === 'id-asc') {
     filteredStatements.sort((a, b) => getNumericId(a.Problem_Statement_ID) - getNumericId(b.Problem_Statement_ID));
   } else if (sortBy === 'id-desc') {
     filteredStatements.sort((a, b) => getNumericId(b.Problem_Statement_ID) - getNumericId(a.Problem_Statement_ID));
   } else if (sortBy === 'title-asc') {
     filteredStatements.sort((a, b) => a.Problem_Statement_Title.localeCompare(b.Problem_Statement_Title));
+  } else if (sortBy === 'date-asc') {
+    filteredStatements.sort((a, b) => parseDeadline(a.Deadline) - parseDeadline(b.Deadline) || getNumericId(a.Problem_Statement_ID) - getNumericId(b.Problem_Statement_ID));
+  } else if (sortBy === 'date-desc') {
+    filteredStatements.sort((a, b) => parseDeadline(b.Deadline) - parseDeadline(a.Deadline) || getNumericId(a.Problem_Statement_ID) - getNumericId(b.Problem_Statement_ID));
   }
 }
 
